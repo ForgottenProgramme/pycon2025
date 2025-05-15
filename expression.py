@@ -63,15 +63,22 @@ class ExpressionParser:
         return result
 
     def multiplicative(self):
-        result = self.primary()
+        result = self.power()
         while self._current in ['*', '/', '%']:
             match self.expect(['*', '/', '%']):
                 case '*':
-                    result *= self.primary()
+                    result *= self.power()
                 case '/':
-                    result //= self.primary()
+                    result //= self.power()
                 case '%':
-                    result %= self.primary()
+                    result %= self.power()
+        return result
+
+    def power(self):
+        result=self.primary()
+        if self._current=='^':
+            self.advance()
+            result **= self.power()
         return result
 
     def primary(self):
@@ -96,10 +103,10 @@ class ExpressionParser:
         message = (f'Found the token: {token_found_str}\n'
                    f'But was expecting an integer, variable or "("')
         raise ParserError(message)
-
+    
 
 if __name__ == '__main__': 
-    expression = '6/2*(1+2)'
+    expression = '(2^3^2)'
     environment = {'x': 11}
     evaluator = ExpressionParser(expression, environment)
     try:
